@@ -1,0 +1,29 @@
+<div *ngFor="let post of posts">
+  <div>
+    {{ post.title }}
+  </div>
+  <p>{{ post.content }}</p>
+  <div>
+    <button (click)="deletePost(post)">DELETE</button>
+  </div>
+  <form [formGroup]="form">
+    <input
+      input
+      type="text"
+      formControlName="content"
+      placeholder="write new content"
+    />
+    <input
+      input
+      type="text"
+      formControlName="title"
+      placeholder="write new title"
+    />
+    <div>
+      <button (click)="editPost(post)" >EDIT</button>
+    </div>
+  </form>
+
+
+</div>
+

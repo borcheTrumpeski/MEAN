@@ -1,0 +1,23 @@
+<div *ngFor="let todo of todos; let i = index">
+  <div>
+    {{ todo.message}}
+  </div>
+  <div>
+  </div>
+  <form [formGroup]="toDoForm" >
+    <input *ngIf="isOpened&&editingIndex === i"
+      input
+      #edit
+      (keyup)="onChangeEdit(edit.value,i)"
+      type="text"
+      formControlName="todo"
+    />
+    <div>
+      <!-- <button [ngClass]="isOpened ? 'is-open': '' (click)="isOpened=!isOpened">Toggle</button> -->
+      <button (click)="onEditToDo(i)" >EDIT</button>
+      <button (click)="onRemoveToDo(todo)">DELETE</button>
+      <button *ngIf="isOpened&&toDoForm.valid&&editingIndex === i" (click)="onBtnSave()">Save</button>
+    </div>
+  </form>
+</div>
+

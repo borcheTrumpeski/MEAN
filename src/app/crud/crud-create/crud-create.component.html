@@ -1,0 +1,55 @@
+<div>
+  <form (submit)="onAddPeople(postForm)" #postForm="ngForm">
+    <div>
+      <input
+        type="text"
+        name="firstName"
+        ngModel
+        required
+        minlength="3"
+        placeholder="First Name"
+        #firstName="ngModel">
+    </div>
+    <div>
+      <textarea
+        rows="1"
+        name="lastName"
+        ngModel
+        required
+        placeholder="Last Name"
+        #lastName="ngModel"></textarea>
+    </div>
+    <button
+      type="submit">Save Person</button>
+  </form>
+</div>
+
+<div *ngFor="let ppl of fullName;let i = index " >
+  <div>First name:{{ppl.firstName}}</div>
+  <div>Last name:{{ppl.lastName}}</div>
+  <div>ID:{{ppl._id}}</div>
+
+  <form [formGroup]="toDoForm" >
+    <input [hidden]="fullNameEdit._id !== ppl._id"
+      input
+      #firstName
+      (keyup)="onChangeEditFirst(firstName.value)"
+      type="text"
+      formControlName="ppl"
+      value=""
+    />
+    <input [hidden]="fullNameEdit._id !== ppl._id"
+    input
+    #lastName
+    (keyup)="onChangeEditLast(lastName.value)"
+    type="text"
+    formControlName="ppl"
+  />
+    <div>
+      <button (click)="onEditPeople(ppl)" >EDIT</button>
+      <button (click)="onDeletePeople(ppl)">DELETE</button>
+      <button  [hidden]="fullNameEdit._id !== ppl._id" (click)="onBtnSave()">Save</button>
+    </div>
+  </form>
+
+</div>

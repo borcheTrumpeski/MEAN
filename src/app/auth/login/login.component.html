@@ -1,0 +1,29 @@
+<div>
+  <form (submit)="onLogin(loginForm)" #loginForm="ngForm">
+    <div>
+      <input
+        type="email"
+        name="email"
+        email
+        ngModel
+        required
+        minlength="3"
+        placeholder="email"
+        #emailInput="ngModel">
+    </div>
+    <div>
+      <input
+        type="password"
+        rows="1"
+        name="password"
+        ngModel
+        required
+        placeholder="password"
+        #passwordInput="ngModel">
+    </div>
+    <button
+      type="submit">Login</button>
+  </form>
+</div>
+
+

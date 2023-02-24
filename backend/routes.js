@@ -1,4 +1,5 @@
 const express = require('express')
+const authMiddleware = require('./jwt')
 const { insertItem,
   getItems,
   updateQuantity,
@@ -14,7 +15,10 @@ const { insertItem,
   getPersonAndEmail,
   getFirstAndLastName,
   deleteById,
-  updatePerson } = require('./db')
+  updatePerson,
+  login,
+  checkEmail,
+  signUp } = require('./db')
 
 const router = express.Router()
 
@@ -22,7 +26,7 @@ router.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -45,11 +49,7 @@ router.put("/api/updateperson/:id", async (req, res, next) => {
 
   const name = req.body.firstName
   const lastname = req.body.lastName
-  console.log("body:", req.body)
 
-  console.log("id:", id)
-  console.log("name:", name)
-  console.log("lastname:", lastname)
 
   const resssss = await updatePerson(id, name, lastname)
   res.status(200).json("taman e");
@@ -66,7 +66,7 @@ router.get("/api/pesonas", async (req, res, next) => {
   });
 });
 
-router.post("/api/firstandlastname", async (req, res, next) => {
+router.post("/api/firstandlastname", authMiddleware, async (req, res, next) => {
   let user = req.body
   const resssss = await getFirstAndLastName(user)
   res.status(200).json(
@@ -187,6 +187,32 @@ router.get("/api/updactive:name", async (req, res, next) => {
   res.status(200).json(rez);
 });
 
+
+
+router.post('/api/signup', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    let exist = await checkEmail(email)
+    if (exist) {
+      res.status(400).json("exists");
+    }
+    else {
+      const rez = signUp(email, password)
+      res.status(200).json(rez);
+    }
+
+  } catch (error) {
+    res.status(400).json(error)
+  }
+
+});
+
+router.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  const rez = await login(email, password)
+  if (rez.message === 'Login successful.') { return res.status(200).json({ token: rez.token }); }
+  return res.status(500).json({ message: "server error" })
+});
 
 
 module.exports = router

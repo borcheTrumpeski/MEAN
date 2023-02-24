@@ -13,6 +13,8 @@ import { HttpClientModule } from "@angular/common/http";
 import { TodosComponent } from './todo/todos/todos.component';
 import { TodosListComponent } from './todo/todos-list/todos-list.component';
 import { CrudCreateComponent } from './crud/crud-create/crud-create.component';
+import { LoginComponent } from './auth/login/login.component';
+import { SignupComponent } from './auth/signup/signup.component';
 
 
 @NgModule({
@@ -23,7 +25,9 @@ import { CrudCreateComponent } from './crud/crud-create/crud-create.component';
     PostListComponent,
     TodosComponent,
     TodosListComponent,
-    CrudCreateComponent
+    CrudCreateComponent,
+    LoginComponent,
+    SignupComponent
   ],
   imports: [
     BrowserModule,

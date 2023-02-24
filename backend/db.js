@@ -1,6 +1,9 @@
 const { MongoClient, ObjectId } = require('mongodb')
+require('dotenv').config();
 const moment = require('moment')
-
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+const auth = require('./jwt')
 const connectionUrl = "mongodb+srv://db-testing:AiVfNLrbImo9hGRa@testingdb-insynctive.8wsmm93.mongodb.net"
 const dbName = 'production'
 
@@ -14,11 +17,8 @@ const init = () =>
 
 async function listDatabases() {
   const dbos = await db.db().admin().listDatabases();
-  console.log("DBS");
-  console.log(dbos);
 
   dbos.databases.forEach(dbv => {
-    console.log(`-${dbv.name}`)
   });
 }
 
@@ -40,7 +40,6 @@ const getItems = async () => {
 const getFullName = async () => {
   const collection = db.collection('personal')
   const rez = await collection.find({}, { projection: { firstName: 1, lastName: 1 } }).toArray()
-  console.log(rez)
   return rez
 }
 
@@ -60,14 +59,12 @@ const getItemsAgeByName = async (firstName) => {
 const getItemsByName = async (firstName) => {
   const collection = db.collection('personal')
   const rez = await collection.find({ firstName: firstName }).toArray()
-  // var years = new Date(new Date() - new Date(rez[0].birthDate)).getFullYear() - 1970;
   return rez
 }
 
 const getItemsByGender = async () => {
   const collection = db.collection('personal')
   const rez = await collection.find({}, { projection: { gender: 1, } }).toArray()
-  // var years = new Date(new Date() - new Date(rez[0].birthDate)).getFullYear() - 1970;
   return rez
 }
 
@@ -161,7 +158,6 @@ const updateQuantity = (id, quantity) => {
 const updateActive = (name) => {
   const collection = db.collection('personal')
   collection.updateOne({ firstName: name }, { $set: { isActive: false } }, (error, result) => {
-    console.log(result);
 
     return result
 
@@ -194,29 +190,24 @@ const getPersonAndEmail = async () => {
 const getFirstAndLastName = async (user) => {
   db.collection('personal').insertOne(user, (err, result) => {
     if (err) return console.error(err);
-    console.log('Inserted user into the collection');
   });
 }
 
 const deleteById = async (id) => {
-  console.log("id in delete", id);
 
   try {
 
     const entry = await db.collection('personal').deleteOne({ "_id": ObjectId(id) }).then(res => {
-      console.log("res: ", res);
     });
 
-    console.log('Deleted user from the collection: ', entry);
   } catch (e) {
-    console.log('Error deleting user from collection: ', e);
+
   }
 }
 
 const updatePerson = (id, name, surname) => {
   const collection = db.collection('personal')
   collection.updateOne({ "_id": ObjectId(id) }, { $set: { firstName: name, lastName: surname } }, (error, result) => {
-    console.log("result", result);
 
     return result
 
@@ -224,6 +215,50 @@ const updatePerson = (id, name, surname) => {
   return null
 
 }
+
+const signUp = async (email, password) => {
+  const salt = await bcrypt.genSalt();
+  const user = { email, password: bcrypt.hashSync(password, salt) };
+  const collection = db.collection('personal')
+  return collection.insertOne(user, (err) => {
+    if (err) return { message: 'Email already in use.' };
+    else {
+      return "Sucessfuly created!"
+    }
+  });
+
+}
+
+const login = async (email, password) => {
+  const collection = db.collection('personal');
+  try {
+    let result = await collection.findOne({ email })
+    const isPasswordValid = bcrypt.compareSync(password, result.password);
+    if (!isPasswordValid) return { message: 'Wrong password.' };
+
+    const secretKey = process.env.JWT_SECRET
+    const token = jwt.sign({ id: result._id }, secretKey, { expiresIn: 86400 });
+
+    return { message: 'Login successful.', token }
+  } catch (error) {
+    return { message: 'error' }
+  }
+};
+
+const checkEmail = async (email) => {
+  const collection = db.collection('personal');
+  try {
+    let existingUser = await collection.findOne({ email });
+    if (existingUser) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
 
 
 module.exports = {
@@ -244,5 +279,8 @@ module.exports = {
   getPersonAndEmail,
   getFirstAndLastName,
   deleteById,
-  updatePerson
+  updatePerson,
+  signUp,
+  login,
+  checkEmail
 }

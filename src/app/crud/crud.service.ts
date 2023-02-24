@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FullName } from './crud.model';
 import { Observable } from 'rxjs';
 import { Subject } from "rxjs";
@@ -27,9 +27,10 @@ export class CrudService {
   }
 
   addPeople(firstName: string, lastName: string) {
-
+    const token = localStorage.getItem('jwt');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     this.http
-      .post<{ firstName: string, lastName: string }>("http://localhost:3000/api/firstandlastname", { firstName, lastName })
+      .post<{ firstName: string, lastName: string }>("http://localhost:3000/api/firstandlastname", { firstName, lastName }, { headers })
       .subscribe(res => {
 
         // this.fullName.push(person)
